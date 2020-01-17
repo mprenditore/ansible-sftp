@@ -28,13 +28,25 @@
     state: present
   when: ansible_selinux and sftp_enable_selinux_support
 
-- name: SFTP-Server | Set SELinux booleans
+- name: SFTP-Server | Set SELinux booleans for Centos < 7.3
   seboolean:
     name: "{{ item }}"
     state: yes
     persistent: yes
   with_items:
     - ssh_chroot_full_access
+  when:
+    - ansible_selinux is defined
+    - sftp_enable_selinux_support
+    - ansible_distribution == "CentOS"
+    - (ansible_distribution_version | float) < 7.3
+
+- name: SFTP-Server | Set SELinux booleans
+  seboolean:
+    name: "{{ item }}"
+    state: yes
+    persistent: yes
+  with_items:
     - ssh_chroot_rw_homedirs
   when: ansible_selinux and sftp_enable_selinux_support
 
